@@ -1,6 +1,13 @@
+import string
+import time
+import uuid
+from logging.config import dictConfig
+
 from fastapi import Depends, FastAPI
 
 import uvicorn
+from starlette.requests import Request
+
 from src.app.dependencies import dependencies
 import src.app.internal.admin
 from src.app import controllers
@@ -8,11 +15,33 @@ import src.app.controllers.users
 import src.app.controllers.items
 from src.app.entities import item, user
 from src.app.internal.database import engine
+import logging
+from os import path
+log_file_path = path.join(path.dirname(path.abspath(__file__)), 'logging.config')
 
 item.Base.metadata.create_all(bind=engine)
 user.Base.metadata.create_all(bind=engine)
 
+logging.config.fileConfig(log_file_path, disable_existing_loggers=False)
+
+logger = logging.getLogger(__name__)
+
 app = FastAPI(dependencies=[Depends(src.app.dependencies.dependencies.get_query_token)])
+
+
+@app.middleware("http")
+async def log_requests(request: Request, call_next):
+    idem = str(uuid.uuid4())
+    logger.info(f"rid={idem} start request path={request.url.path}")
+    start_time = time.time()
+
+    response = await call_next(request)
+
+    process_time = (time.time() - start_time) * 1000
+    formatted_process_time = '{0:.2f}'.format(process_time)
+    logger.info(f"rid={idem} completed_in={formatted_process_time}ms status_code={response.status_code}")
+
+    return response
 
 
 app.include_router(src.app.controllers.users.router)
@@ -28,6 +57,7 @@ app.include_router(
 
 @app.get("/")
 async def root():
+    logger.info("This is root")
     return {"message": "Hello Bigger Applications!"}
 
 
