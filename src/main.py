@@ -8,11 +8,14 @@ from fastapi import Depends, FastAPI
 from starlette.requests import Request
 
 from src.app.utils.auto_discovery_util import AutoClassDiscoveryUtil
-from src.app.dependencies import dependencies
+from src.app.dependencies import auth_dependency
 import src.app.internal.admin
 from src.app import controllers
 import src.app.controllers.users
 import src.app.controllers.items
+import src.app.controllers.login
+import src.app.controllers.signup
+
 from src.app.entities import item, user
 from src.app.internal.database import engine
 import logging
@@ -30,7 +33,7 @@ logging.config.fileConfig(log_file_path, disable_existing_loggers=False)
 
 logger = logging.getLogger(__name__)
 
-app = FastAPI(dependencies=[Depends(src.app.dependencies.dependencies.get_query_token)])
+app = FastAPI()
 
 
 @app.middleware("http")
@@ -50,13 +53,15 @@ async def log_requests(request: Request, call_next):
 
 app.include_router(src.app.controllers.users.router)
 app.include_router(src.app.controllers.items.router)
-app.include_router(
-    src.app.internal.admin.router,
-    prefix="/admin",
-    tags=["admin"],
-    dependencies=[Depends(src.app.dependencies.dependencies.get_token_header)],
-    responses={418: {"description": "I'm a teapot"}},
-)
+app.include_router(src.app.controllers.login.app)
+app.include_router(src.app.controllers.signup.router)
+# app.include_router(
+#     src.app.internal.admin.router,
+#     prefix="/admin",
+#     tags=["admin"],
+#     dependencies=[Depends(src.app.dependencies.dependencies.get_token_header)],
+#     responses={418: {"description": "I'm a teapot"}},
+# )
 
 
 @app.get("/")

@@ -11,8 +11,6 @@ from ..dto import user as schemas
 router = APIRouter()
 
 
-
-
 @router.post("/users/",
              response_model=schemas.User,
              tags=["User"])

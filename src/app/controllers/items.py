@@ -4,11 +4,13 @@ from typing import List
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
+
 from ..dao import item as crud
+from ..dependencies.auth_dependency import get_current_user
 from ..dependencies.dependencies import get_db
 from ..dto import item as schemas
 
-router = APIRouter()
+router = APIRouter(dependencies=[Depends(get_current_user)])
 
 logger = logging.getLogger()
 
