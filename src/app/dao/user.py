@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
 
-from ..entities.user import User
-from ..dto.user import UserCreate
+from src.app.entities.user import User
+from src.app.dto.user import UserCreate
 
 
 def get_user(db: Session, user_id: int):

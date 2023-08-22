@@ -1,13 +1,13 @@
-import string
 import time
 import uuid
 from logging.config import dictConfig
 
+import uvicorn
 from fastapi import Depends, FastAPI
 
-import uvicorn
 from starlette.requests import Request
 
+from src.app.utils.auto_discovery_util import AutoClassDiscoveryUtil
 from src.app.dependencies import dependencies
 import src.app.internal.admin
 from src.app import controllers
@@ -17,6 +17,10 @@ from src.app.entities import item, user
 from src.app.internal.database import engine
 import logging
 from os import path
+
+from src.app.searching import child_class
+from src.app.searching.BaseClass import BaseClass
+
 log_file_path = path.join(path.dirname(path.abspath(__file__)), 'logging.config')
 
 item.Base.metadata.create_all(bind=engine)
@@ -63,3 +67,4 @@ async def root():
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)
+

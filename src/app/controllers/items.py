@@ -1,7 +1,7 @@
 import logging
 from typing import List
 
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
 from ..dao import item as crud
